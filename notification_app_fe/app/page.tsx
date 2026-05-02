@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
   Container, Typography, Card, CardContent,
-  Chip, Box, CircularProgress, Tabs, Tab
+  Chip, Box, CircularProgress, Tabs, Tab , Button
 } from '@mui/material';
 import { Log } from '../lib/logger';
 
@@ -60,10 +60,14 @@ export default function Home() {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-      <Typography variant="h4" fontWeight="bold" mb={3}>
-        Campus Notifications
-      </Typography>
-
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+  <Typography variant="h4" fontWeight="bold">
+    Campus Notifications
+  </Typography>
+  <Button variant="contained" color="error" href="/priority">
+    Priority View
+  </Button>
+</Box>
       <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3 }}>
         {types.map(t => <Tab key={t} label={t} />)}
       </Tabs>
