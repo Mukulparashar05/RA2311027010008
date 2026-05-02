@@ -68,7 +68,7 @@ export default function PriorityPage() {
       </Box>
 
       {loading ? (
-        <Box display="flex" justifyContent="center"><CircularProgress /></Box>
+        <Box sx={{ display: "flex", justifyContent: "center" }}><CircularProgress /></Box>
       ) : notifications.length === 0 ? (
         <Typography>No notifications found.</Typography>
       ) : (
