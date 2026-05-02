@@ -4,7 +4,7 @@ const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJNYXBDbGFpbXMiOnsiYXVkIjoi
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const limit = searchParams.get('limit') || '50';
+  const limit = searchParams.get('limit') || '10';
   const page = searchParams.get('page') || '1';
   const notification_type = searchParams.get('notification_type') || '';
 
