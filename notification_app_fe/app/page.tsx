@@ -101,7 +101,7 @@ export default function Home() {
               </Box>
               <Typography mt={1}>{n.Message}</Typography>
               <Typography variant="caption" color="text.secondary">
-                {new Date(n.Timestamp).toLocaleString()}
+                {n.Timestamp}
               </Typography>
             </CardContent>
           </Card>
