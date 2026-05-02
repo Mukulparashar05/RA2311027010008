@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
   Container, Typography, Card, CardContent,
-  Chip, Box, CircularProgress, Tabs, Tab , Button
+  Chip, Box, CircularProgress, Tabs, Tab, Button, Pagination
 } from '@mui/material';
 import { Log } from '../lib/logger';
 
@@ -25,18 +25,21 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState(0);
   const [viewed, setViewed] = useState<Set<string>>(new Set());
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [page, tab]);
 
   const fetchNotifications = async () => {
+    setLoading(true);
     try {
       await Log('frontend', 'info', 'api', 'Fetching notifications');
-      const res = await axios.get('/api/notifications');
-      const data = res.data;
-      if (data && Array.isArray(data.notifications)) {
-        setNotifications(data.notifications);
+      const types = ['', 'Result', 'Placement', 'Event'];
+      const typeParam = types[tab] ? `&notification_type=${types[tab]}` : '';
+      const res = await axios.get(`/api/notifications?limit=10&page=${page}${typeParam}`);
+      if (res.data && Array.isArray(res.data.notifications)) {
+        setNotifications(res.data.notifications);
       } else {
         setNotifications([]);
       }
@@ -53,31 +56,34 @@ export default function Home() {
     setViewed(prev => new Set(prev).add(id));
   };
 
+  const handleTabChange = (_: any, val: number) => {
+    setTab(val);
+    setPage(1);
+  };
+
   const types = ['All', 'Result', 'Placement', 'Event'];
-  const filtered = notifications.filter(n =>
-    tab === 0 ? true : n.Type === types[tab]
-  );
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-  <Typography variant="h4" fontWeight="bold">
-    Campus Notifications
-  </Typography>
-  <Button variant="contained" color="error" href="/priority">
-    Priority View
-  </Button>
-</Box>
-      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3 }}>
+        <Typography variant="h4" fontWeight="bold">
+          Campus Notifications
+        </Typography>
+        <Button variant="contained" color="error" href="/priority">
+          Priority View
+        </Button>
+      </Box>
+
+      <Tabs value={tab} onChange={handleTabChange} sx={{ mb: 3 }}>
         {types.map(t => <Tab key={t} label={t} />)}
       </Tabs>
 
       {loading ? (
-        <Box display="flex" justifyContent="center"><CircularProgress /></Box>
-      ) : filtered.length === 0 ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}><CircularProgress /></Box>
+      ) : notifications.length === 0 ? (
         <Typography>No notifications found.</Typography>
       ) : (
-        filtered.map(n => (
+        notifications.map(n => (
           <Card
             key={n.ID}
             sx={{
@@ -89,7 +95,7 @@ export default function Home() {
             onClick={() => markViewed(n.ID)}
           >
             <CardContent>
-              <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Chip label={n.Type} color={TYPE_COLORS[n.Type] || 'default'} size="small" />
                 {!viewed.has(n.ID) && <Chip label="NEW" color="error" size="small" />}
               </Box>
@@ -101,6 +107,15 @@ export default function Home() {
           </Card>
         ))
       )}
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+        <Pagination
+          count={10}
+          page={page}
+          onChange={(_, val) => setPage(val)}
+          color="primary"
+        />
+      </Box>
     </Container>
   );
 }
